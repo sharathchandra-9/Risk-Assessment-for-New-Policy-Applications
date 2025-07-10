@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>RiskShield Underwriting</title>
+
+  <!-- Tailwind & Font Awesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <style>
+    .gradient-bg      { background: linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%) }
+    .risk-low         { background:#10b981 }
+    .risk-medium      { background:#f59e0b }
+    .risk-high        { background:#ef4444 }
+    .decision-approved{ border-left:4px solid #10b981 }
+    .decision-rejected{ border-left:4px solid #ef4444 }
+    .decision-pending { border-left:4px solid #f59e0b }
+    .animated-progress{ transition:width .5s ease-in-out }
+    @keyframes slideIn{ from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    .slide-in         { animation:slideIn .5s forwards }
+  </style>
+</head>
+
+<body class="bg-gray-50">
+<div class="min-h-screen">
+  <!-- ===== Header ===== -->
+  <header class="gradient-bg text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-shield-alt text-2xl"></i>
+        <h1 class="text-2xl font-bold">RiskShield Underwriting</h1>
+      </div>
+      <button
+        class="px-4 py-2 bg-white text-blue-800 rounded-lg font-medium hover:bg-blue-100">
+        <i class="fas fa-user mr-2"></i>Underwriter Dashboard
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== Main ===== -->
+  <main class="container mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- === Application Form === -->
+      <div class="lg:col-span-2 bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-6">
+          <h2 class="text-xl font-bold text-gray-800 mb-6">New Policy Application</h2>
+
+          <!-- Progress bar -->
+          <div class="mb-8">
+            <div class="flex justify-between mb-2">
+              <span class="text-sm font-medium text-gray-700">Application Progress</span>
+              <span class="text-sm font-medium" id="progressPercent">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div id="progressBar"
+                   class="bg-blue-600 h-2.5 rounded-full animated-progress"
+                   style="width:0%"></div>
+            </div>
+          </div>
+
+          <!-- ===== Form ===== -->
+          <form id="applicationForm" class="space-y-6">
+            <!-- Personal Information -->
+            <section class="border-b border-gray-200 pb-6">
+              <h3 class="text-lg font-medium text-gray-900 mb-4">
+                <i class="fas fa-user-circle mr-2 text-blue-600"></i>Personal Information
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label for="firstName" class="block text-sm font-medium mb-1">First Name</label>
+                  <input required type="text" id="firstName" name="firstName"
+                         class="w-full px-3 py-2 border rounded-md"/>
+                </div>
+                <div>
+                  <label for="lastName"  class="block text-sm font-medium mb-1">Last Name</label>
+                  <input required type="text" id="lastName" name="lastName"
+                         class="w-full px-3 py-2 border rounded-md"/>
+                </div>
+                <div>
+                  <label for="dob" class="block text-sm font-medium mb-1">Date of Birth</label>
+                  <input required type="date" id="dob" name="dob"
+                         class="w-full px-3 py-2 border rounded-md"/>
+                </div>
+                <div>
+                  <label for="ssn" class="block text-sm font-medium mb-1">SSN (Last 4)</label>
+                  <input required type="text" pattern="\d{4}" maxlength="4"
+                         id="ssn" name="ssn"
+                         class="w-full px-3 py-2 border rounded-md"/>
+                </div>
+              </div>
+            </section>
+
+            <!-- Policy Details -->
+            <section class="border-b border-gray-200 pb-6">
+              <h3 class="text-lg font-medium text-gray-900 mb-4">
+                <i class="fas fa-file-contract mr-2 text-blue-600"></i>Policy Details
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium mb-1">Policy Type</label>
+                  <select required id="policyType" name="policyType"
+                          class="w-full px-3 py-2 border rounded-md">
+                    <option value="">Select</option>
+                    <option value="term_life">Term Life</option>
+                    <option value="whole_life">Whole Life</option>
+                    <option value="health">Health</option>
+                    <option value="auto">Auto</option>
+                    <option value="homeowners">Homeowners</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1">Coverage Amount ($)</label>
+                  <input required type="number" min="1000" step="1000"
+                         id="coverageAmount" name="coverageAmount"
+                         class="w-full px-3 py-2 border rounded-md"/>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1">Term Length&nbsp;(Years)</label>
+                  <input required type="number" min="1" max="30"
+                         id="termLength" name="termLength"
+                         class="w-full px-3 py-2 border rounded-md"/>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1">Payment Frequency</label>
+                  <select required id="paymentFrequency" name="paymentFrequency"
+                          class="w-full px-3 py-2 border rounded-md">
+                    <option value="">Select</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="semiannually">Semi-annually</option>
+                    <option value="annually">Annually</option>
+                  </select>
+                </div>
+              </div>
+            </section>
+
+            <!-- Health Information -->
+            <section class="border-b border-gray-200 pb-6">
+              <h3 class="text-lg font-medium text-gray-900 mb-4">
+                <i class="fas fa-heartbeat mr-2 text-blue-600"></i>Health Information
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium mb-1">Height (in)</label>
+                  <input type="number" min="48" max="96"
+                         id="height" name="height"
+                         class="w-full px-3 py-2 border rounded-md"/>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1">Weight (lbs)</label>
+                  <input type="number" min="50" max="500"
+                         id="weight" name="weight"
+                         class="w-full px-3 py-2 border rounded-md"/>
+                </div>
+                <div class="md:col-span-2">
+                  <span class="block text-sm font-medium mb-1">Tobacco use?</span>
+                  <label class="inline-flex items-center mr-4">
+                    <input type="radio" name="tobaccoUse" value="yes"
+                           class="h-4 w-4 text-blue-600"/><span class="ml-1">Yes</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="tobaccoUse" value="no" checked
+                           class="h-4 w-4 text-blue-600"/><span class="ml-1">No</span>
+                  </label>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium mb-1">
+                    Medical Conditions (select all)
+                  </label>
+                  <select id="medicalConditions" name="medicalConditions" multiple
+                          class="w-full px-3 py-2 border rounded-md h-32">
+                    <option value="diabetes">Diabetes</option>
+                    <option value="hypertension">Hypertension</option>
+                    <option value="heart_disease">Heart Disease</option>
+                    <option value="cancer">Cancer</option>
+                    <option value="respiratory">Respiratory Issues</option>
+                    <option value="none">None</option>
+                  </select>
+                </div>
+              </div>
+            </section>
+
+            <!-- Financial Information -->
+            <section class="border-b border-gray-200 pb-6">
+              <h3 class="text-lg font-medium text-gray-900 mb-4">
+                <i class="fas fa-chart-line mr-2 text-blue-600"></i>Financial Information
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium mb-1">Annual Income ($)</label>
+                  <input required type="number" min="0" step="1000"
+                         id="annualIncome" name="annualIncome"
+                         class="w-full px-3 py-2 border rounded-md"/>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1">Credit Score</label>
+                  <input required type="number" min="300" max="850"
+                         id="creditScore" name="creditScore"
+                         class="w-full px-3 py-2 border rounded-md"/>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium mb-1">
+                    Bankruptcies (last 7 yrs)
+                  </label>
+                  <input required type="number" min="0" max="10"
+                         id="bankruptcies" name="bankruptcies"
+                         class="w-full px-3 py-2 border rounded-md"/>
+                </div>
+              </div>
+            </section>
+
+            <!-- Additional Information -->
+            <section>
+              <h3 class="text-lg font-medium text-gray-900 mb-4">
+                <i class="fas fa-info-circle mr-2 text-blue-600"></i>Additional Information
+              </h3>
+              <div class="grid grid-cols-1 gap-4">
+                <div>
+                  <label class="block text-sm font-medium mb-1">Occupation</label>
+                  <input required type="text" id="occupation" name="occupation"
+                         class="w-full px-3 py-2 border rounded-md"/>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1">
+                    High-Risk Hobbies
+                  </label>
+                  <input type="text" id="hobbies" name="hobbies"
+                         placeholder="e.g. skydiving, scuba diving"
+                         class="w-full px-3 py-2 border rounded-md"/>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1">
+                    Previous Claims
+                  </label>
+                  <textarea id="previousClaims" name="previousClaims" rows="3"
+                            class="w-full px-3 py-2 border rounded-md"></textarea>
+                </div>
+              </div>
+            </section>
+
+            <!-- Submit -->
+            <button type="submit"
+                    class="w-full gradient-bg text-white py-3 rounded-md font-medium hover:opacity-90 flex justify-center">
+              <i class="fas fa-shield-alt mr-2"></i>Submit for Risk Assessment
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- === Risk Panel === -->
+      <aside class="lg:col-span-1">
+        <div class="bg-white rounded-xl shadow-md sticky top-8 overflow-hidden">
+          <div class="p-6 bg-gray-50 border-b">
+            <h2 class="text-xl font-bold text-gray-800">Risk Assessment</h2>
+            <p class="text-sm text-gray-600 mt-1">Real-time evaluation</p>
+          </div>
+          <div id="riskAssessmentPanel" class="p-6 space-y-6 text-center">
+            <i class="fas fa-search text-gray-300 text-4xl mb-3"></i>
+            <p class="text-gray-500">Submit an application to begin assessment</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+
+<!-- ===== Decision Modal ===== -->
+<div id="decisionModal"
+     class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 slide-in">
+    <div class="p-6">
+      <div class="flex justify-between items-start">
+        <div>
+          <h3 id="decisionTitle" class="text-xl font-bold text-gray-800">
+            Underwriting Decision
+          </h3>
+          <p id="decisionSubtitle" class="text-sm text-gray-600">
+            Based on comprehensive risk assessment
+          </p>
+        </div>
+        <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="decisionContent" class="mt-6"></div>
+      <div class="mt-8 pt-6 border-t flex justify-end gap-3">
+        <button id="printDecision"
+                class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50">
+          <i class="fas fa-print mr-2"></i>Print
+        </button>
+        <button id="newApplication"
+                class="px-4 py-2 gradient-bg text-white rounded-md hover:opacity-90">
+          <i class="fas fa-plus mr-2"></i>New Application
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== JavaScript ===== -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const form           = document.querySelector("#applicationForm");
+    const pbBar          = document.querySelector("#progressBar");
+    const pbPercent      = document.querySelector("#progressPercent");
+    const riskPanel      = document.querySelector("#riskAssessmentPanel");
+    const modal          = document.querySelector("#decisionModal");
+    const closeModalBtn  = document.querySelector("#closeModal");
+    const newAppBtn      = document.querySelector("#newApplication");
+    const printBtn       = document.querySelector("#printDecision");
+
+    /* ------------- Progress tracker ------------- */
+    const totalFields = [...form.elements]
+      .filter(el => el.tagName !== "BUTTON")
+      .length;
+
+    form.addEventListener("input", () => {
+      const filled = [...form.elements].filter(el =>
+        (el.type === "radio") ? el.checked && el.value
+        : el.value && el.tagName !== "BUTTON"
+      ).length;
+      const pct = Math.round((filled / totalFields) * 100);
+      pbBar.style.width = pct + "%";
+      pbPercent.textContent = pct + "%";
+    });
+
+    /* ------------- Submit handler ------------- */
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      // collect multiple select + radio values
+      const json = Object.fromEntries(formData.entries());
+      json.medicalConditions = formData.getAll("medicalConditions"); // multiple
+      json.tobaccoUse = form.querySelector("input[name=tobaccoUse]:checked").value;
+
+      try {
+        const res = await fetch("/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(json),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Prediction failed");
+
+        showRisk(data.risk);
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    });
+
+    /* ------------- Risk display ------------- */
+    function showRisk(riskLabel) {
+      // Panel
+      riskPanel.innerHTML = `
+        <div class="flex items-center justify-center gap-2">
+          <span class="px-4 py-2 rounded-full text-white ${
+            riskLabel === "Low Risk"    ? "risk-low"
+          : riskLabel === "Medium Risk" ? "risk-medium"
+          :                               "risk-high"}">
+            ${riskLabel}
+          </span>
+        </div>
+        <p class="text-sm text-gray-600">Click for full details</p>
+      `;
+      riskPanel.onclick = () => openModal(riskLabel);
+
+      // Modal content
+      document.querySelector("#decisionContent").innerHTML = `
+        <p class="text-lg">
+          Applicant has been classified as
+          <strong>${riskLabel}</strong>.
+        </p>
+        <p class="mt-4 text-gray-600">
+          The decision is auto-generated by the underwriting model.
+          An underwriter will review if necessary.
+        </p>
+      `;
+    }
+
+    /* ------------- Modal helpers ------------- */
+    function openModal(label) {
+      modal.classList.remove("hidden");
+      const title  = document.querySelector("#decisionTitle");
+      const subttl = document.querySelector("#decisionSubtitle");
+      title.textContent = label;
+      subttl.textContent = "Automated evaluation complete";
+    }
+    function closeModal() { modal.classList.add("hidden"); }
+
+    closeModalBtn.addEventListener("click", closeModal);
+    newAppBtn.addEventListener("click", () => {
+      closeModal();
+      form.reset();
+      pbBar.style.width = "0%";
+      pbPercent.textContent = "0%";
+      riskPanel.innerHTML = `
+        <i class="fas fa-search text-gray-300 text-4xl mb-3"></i>
+        <p class="text-gray-500">Submit an application to begin assessment</p>
+      `;
+      form.scrollIntoView({ behavior: "smooth" });
+    });
+    printBtn.addEventListener("click", () => window.print());
+  });
+</script>
+</body>
+</html>
